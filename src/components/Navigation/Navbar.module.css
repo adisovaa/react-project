@@ -1,0 +1,12 @@
+.nav {
+    grid-area: n;
+    background-color: papayawhip;
+}
+
+.item {
+    color: gray;
+}
+
+.item .active {
+    color: orange;
+}
