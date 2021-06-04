@@ -1,20 +1,17 @@
 import React from 'react'
 import s from './ProfileInfo.module.css'
-import Preloader from "../../common/preloader"
-import ProfileStatus from "./ProfileStatus";
+import Preloader from "../../common/Preloader/preloader"
+import ProfileStatusWithHooks from "./ProfileStatusWithHooks";
 
-const ProfileInfo = (props) => {
-    if (!props.profile) {
+const ProfileInfo = ({profile, status, updateStatus}) => {
+    if (!profile) { //в начале нет профиля, так как profile=null в стейте, потом приходят данные только, поэтому создаем заглушку
         return <Preloader/>
     }
     return (
         <div>
-            {/*<div>*/}
-            {/*    <img src="https://i.pinimg.com/originals/33/81/88/338188514739fd4b4547b7a514cf5278.png" alt=""/>*/}
-            {/*</div>*/}
             <div className={s.descriptionBlock}>
-               <img src={props.profile.photos.large} className={s.photos}/>
-                <ProfileStatus status={'hello my friends'}/>
+               <img src={profile.photos.large} className={s.photos} alt={'#'}/>
+                <ProfileStatusWithHooks status={status} updateStatus={updateStatus}/>
             </div>
         </div>
     )

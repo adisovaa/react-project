@@ -1,6 +1,7 @@
 import {authAPI} from "../api/api";
+import {stopSubmit} from "redux-form"
 
-const SET_USER_DATA = 'SET_USER_DATA';
+const SET_USER_DATA = 'react-project/auth/SET_USER_DATA';
 
 let initialState = {
     userId: null,
@@ -14,7 +15,7 @@ const authReducer = (state = initialState, action) => {
         case SET_USER_DATA:
             return {
                 ...state,
-                ...action.data,
+                ...action.payload, //payload=data
                 isAuth: true
             }
         default:
@@ -22,17 +23,33 @@ const authReducer = (state = initialState, action) => {
     }
 }
 
-export const setAuthUserDataAC = (userId, email, login) => ({type: SET_USER_DATA, data: {userId, email, login}});
-//actionCreator = (приходят данные) => ({type: тип Экшена, {упаковываем свойства} }) => AC- задача этой функции вернуть объект экшен
+export const setAuthUserDataAC = (userId, email, login) => ({type: SET_USER_DATA, payload: {userId, email, login}});
 
-export const getAuthUserData = () => (dispatch) => {
-    authAPI.me()
-        .then(response => {
-            if (response.data.resultCode === 0) {
-                let {id, email, login} = response.data.data;
-                dispatch(setAuthUserDataAC(id, email, login));
-            }
-        })
+export const getAuthUserData = () => async (dispatch) => {
+    let response = await authAPI.me()
+    if (response.data.resultCode === 0) {
+        let {id, email, login} = response.data.data;
+        dispatch(setAuthUserDataAC(id, email, login, true));
+    }
+}
+
+
+export const login = (email, password, rememberMe) => async (dispatch) => {
+    let response = await authAPI.login(email, password, rememberMe)
+    if (response.data.resultCode === 0) {
+        dispatch(getAuthUserData())
+    } else {
+        let message = response.data.messages.length > 0 ? response.data.messages[0] : 'Some error'
+        dispatch(stopSubmit('login', {_error: message}))
+    }
+}
+
+
+export const logout = () => async (dispatch) => {
+    let response = await authAPI.login()
+    if (response.data.resultCode === 0) {
+        dispatch(setAuthUserDataAC(null, null, null, false))
+    }
 }
 
 export default authReducer
